@@ -5,21 +5,24 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all; 
 
 entity Register_Bank is
+	generic(RegBits : integer:=16;
+    Regs_in_bit : integer := 4 );
+    
     Port (
         clk         : in  STD_LOGIC;
         RegWrite    : in  STD_LOGIC;
-        ReadReg1    : in  STD_LOGIC_VECTOR(2 downto 0);
-        ReadReg2    : in  STD_LOGIC_VECTOR(2 downto 0);
-        WriteReg    : in  STD_LOGIC_VECTOR(2 downto 0);
-        WriteData   : in  STD_LOGIC_VECTOR(7 downto 0);
-        ReadData1   : out  STD_LOGIC_VECTOR(7 downto 0);
-        ReadData2   : out  STD_LOGIC_VECTOR(7 downto 0);
-        R1_Out     : out STD_LOGIC_VECTOR(7 downto 0)  
+        ReadReg1    : in  STD_LOGIC_VECTOR(Regs_in_bit - 1 downto 0);
+        ReadReg2    : in  STD_LOGIC_VECTOR(Regs_in_bit - 1 downto 0);
+        WriteReg    : in  STD_LOGIC_VECTOR(Regs_in_bit - 1 downto 0);
+        WriteData   : in  STD_LOGIC_VECTOR(RegBits - 1 downto 0);
+        ReadData1   : out  STD_LOGIC_VECTOR(RegBits - 1 downto 0);
+        ReadData2   : out  STD_LOGIC_VECTOR(RegBits - 1 downto 0);
+        R1_Out     : out STD_LOGIC_VECTOR(RegBits - 1 downto 0)  
     );
 end Register_Bank;
 
 architecture Behavioral of Register_Bank is
-    type reg_array is array (0 to 7) of STD_LOGIC_VECTOR(7 downto 0);
+    type reg_array is array (0 to (2 ** Regs_in_bit) - 1) of STD_LOGIC_VECTOR(RegBits - 1 downto 0);
     signal Registers : reg_array := (others => (others => '0'));
 begin
     process (clk)

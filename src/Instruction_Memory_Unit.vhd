@@ -20,7 +20,7 @@ architecture Behavioral of Instruction_Memory_Unit is
 Type MyMem is array(2**AddrWidth -1 downto 0) of std_logic_vector(8 -1 downto 0);		 
 
 impure function InitRamFromFile (RamFileName : in string) return MyMem is
-	FILE RamFile : text is in RamFileName;
+	FILE RamFile : text open read_mode is RamFileName;
 	variable RamFileLine : line;
 	variable RAM : MyMem;
 	begin

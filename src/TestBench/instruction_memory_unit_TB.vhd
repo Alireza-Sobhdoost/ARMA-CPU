@@ -21,7 +21,7 @@ architecture TB_ARCHITECTURE of instruction_memory_unit_tb is
 		clk : in STD_LOGIC;
 		MemRead : in STD_LOGIC;
 		MemWrite : in STD_LOGIC;
-		Address : in INTEGER range 2**AddrWidth-1 downto 0;
+		Address : in INTEGER range 0 to 2**AddrWidth-1;
 		DataIn : in STD_LOGIC_VECTOR(DataWidth-1 downto 0);
 		DataOut : out STD_LOGIC_VECTOR(DataWidth-1 downto 0) );
 	end component;
@@ -30,7 +30,7 @@ architecture TB_ARCHITECTURE of instruction_memory_unit_tb is
 	signal clk : STD_LOGIC:='0';
 	signal MemRead : STD_LOGIC;
 	signal MemWrite : STD_LOGIC;
-	signal Address : INTEGER range 2**AddrWidth-1 downto 0;
+	signal Address : INTEGER range 0 to 2**AddrWidth-1;
 	signal DataIn : STD_LOGIC_VECTOR(DataWidth-1 downto 0);
 	-- Observed signals - signals mapped to the output ports of tested entity
 	signal DataOut : STD_LOGIC_VECTOR(DataWidth-1 downto 0);
@@ -63,7 +63,7 @@ begin
 		 memwrite <= '0';
 		 address <= 0;
 		 datain <= "0000111100001100";
-		 wait for 2ns;
+		 wait for 2 ns;
 		 memread <= '0';
 		 memwrite <= '1';
 		 address <= 2;
