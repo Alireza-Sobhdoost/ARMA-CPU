@@ -2,8 +2,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;    
 use IEEE.numeric_std.all; 
 entity Memory_Unit is  
-	generic(AddrWidth : integer:=8;
-	DataWidth : integer := 8);
+	generic(AddrWidth : integer:=4;
+	DataWidth : integer := 16);
     Port (
         clk        : in  STD_LOGIC;
         MemRead    : in  STD_LOGIC;
@@ -15,7 +15,7 @@ entity Memory_Unit is
 end Memory_Unit;
 
 architecture Behavioral of Memory_Unit is
-Type MyMem is array(2**9 -1 downto 0) of std_logic_vector(DataWidth -1 downto 0);
+Type MyMem is array((2 ** AddrWidth) -1 downto 0) of std_logic_vector(DataWidth -1 downto 0);
 signal mem : MyMem := (others => (others => '0'));
 begin
     process (clk)

@@ -7,17 +7,18 @@ use ieee.std_logic_1164.all;
 entity memory_unit_tb is
 	-- Generic declarations of the tested unit
 		generic(
-		AddrWidth : INTEGER := 8;
-		DataWidth : INTEGER := 8 );
+		AddrWidth : INTEGER := 4;
+		DataWidth : INTEGER := 16 );
 end memory_unit_tb;
 
 architecture TB_ARCHITECTURE of memory_unit_tb is
 	-- Component declaration of the tested unit
 	component memory_unit
 		generic(
-		AddrWidth : INTEGER := 8;
-		DataWidth : INTEGER := 8 );
-	port(
+		AddrWidth : INTEGER := 4;
+		DataWidth : INTEGER := 16);
+		
+		port(
 		clk : in STD_LOGIC;
 		MemRead : in STD_LOGIC;
 		MemWrite : in STD_LOGIC;
@@ -61,13 +62,13 @@ begin
 	 begin
 		 memread <= '0';
 		 memwrite <= '1';
-		 address <= "00000000";
-		 datain <= "11111111";
-		 wait for 4ns;
+		 address <= "0000";
+		 datain <= "1111111100000000";
+		 wait for 4 ns;
 		 memread <= '1';
 		 memwrite <= '0';
-		 address <= "00000000";
-		 datain <= "00000000";
+		 address <= "0000";
+		 datain <= "0000000011111111";
 		 wait;
 	 end process;
 end TB_ARCHITECTURE;

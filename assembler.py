@@ -6,10 +6,10 @@ OPCODES = {
     "CMP":  "0100",
     "XOR":  "0101",
     "AND":  "0110",
-    "SHL":  "0111",
-    "SHR":  "1000",
-    "COM":  "1001",
-    "INC":  "1010",
+    "OR":  "0111",
+    "NOT":  "1000",
+    "SHL":  "1001",
+    "SHR":  "1010",
     "LD":   "1011",
     "ST":   "1100",
     "BR":   "1101",
@@ -19,6 +19,8 @@ OPCODES = {
 
 def reg_to_bin(reg: str) -> str:
     """Convert register name like R3 to 4-bit binary string."""
+    if reg[:1].upper() != "R" or not reg[1:].isdigit() or int(reg[1:]) > 15:
+        raise ValueError(f"Expected a register R0-R15, got '{reg}'")
     return f"{int(reg[1:]):04b}"
 
 def encode_instruction(line: str) -> str:
@@ -34,14 +36,17 @@ def encode_instruction(line: str) -> str:
 
     opcode = OPCODES[instr]
 
-    # --- R-type: ADD, SUB, XOR, AND ---
-    if instr in ["ADD", "SUB", "XOR", "AND"]:
+    # --- R-type: ADD, SUB, XOR, AND, OR ---
+    if instr in ["ADD", "SUB", "XOR", "AND", "OR"]:
         rd, rs1, rs2 = parts[1], parts[2], parts[3]
         return opcode + reg_to_bin(rd) + reg_to_bin(rs1) + reg_to_bin(rs2)
 
     # --- I-type: ADDI ---
     elif instr == "ADDI":
         rd, imm = parts[1], int(parts[2])
+        # The CPU sign-extends the 8-bit immediate
+        if not -128 <= imm <= 127:
+            raise ValueError(f"Immediate must be -128..127, got {imm}")
         return opcode + reg_to_bin(rd) + f"{imm & 0xFF:08b}"
 
     # --- MOV Rd, Rs ---
@@ -49,20 +54,21 @@ def encode_instruction(line: str) -> str:
         rd, rs = parts[1], parts[2]
         return opcode + reg_to_bin(rd) + reg_to_bin(rs) + "0000"
 
-    # --- CMP Rs1, Rs2 ---
+    # --- CMP Rs1, Rs2 (R-type with no destination, flags = Rs1 - Rs2) ---
     elif instr == "CMP":
         rs1, rs2 = parts[1], parts[2]
-        return opcode + reg_to_bin(rs1) + reg_to_bin(rs2) + "0000"
+        return opcode + "0000" + reg_to_bin(rs1) + reg_to_bin(rs2)
 
     # --- SHL/SHR Rd, Rs ---
     elif instr in ["SHL", "SHR"]:
         rd, rs = parts[1], parts[2]
         return opcode + reg_to_bin(rd) + reg_to_bin(rs) + "0000"
 
-    # --- COM / INC (unary ops) ---
-    elif instr in ["COM", "INC"]:
+    # --- NOT Rd (Rd <- not Rd) or NOT Rd, Rs (Rd <- not Rs) ---
+    elif instr == "NOT":
         rd = parts[1]
-        return opcode + reg_to_bin(rd) + "00000000"
+        rs = parts[2] if len(parts) > 2 else rd
+        return opcode + reg_to_bin(rd) + reg_to_bin(rs) + "0000"
 
     # --- LD / ST: LD R1, [R2, 0x4] or ST [R2, 0x4], R1 ---
     elif instr in ["LD", "ST"]:
@@ -85,13 +91,26 @@ def encode_instruction(line: str) -> str:
 
     else:
         raise ValueError(f"Encoding not implemented for {instr}")
-    
+
+def expand_pseudo(line: str) -> list:
+    """
+    Expand pseudo-instructions into real ones.
+    MOV Rd, imm  ->  XOR Rd, Rd, Rd ; ADDI Rd, imm   (load immediate)
+    Note: a pseudo-instruction takes 2 slots, so count both in branch offsets.
+    """
+    parts = line.replace(",", " ").split()
+    if len(parts) == 3 and parts[0].upper() == "MOV" and parts[2][:1].upper() != "R":
+        rd, imm = parts[1], parts[2]
+        return [f"XOR {rd}, {rd}, {rd}", f"ADDI {rd}, {imm}"]
+    return [line]
+
 def assemble(instructions, filename="./src/program.data"):
     """Assemble and write into 512-line memory file."""
     memory = ["00000000"] * 512
     addr = 511
 
-    for instr in instructions:
+    real = [r for instr in instructions for r in expand_pseudo(instr)]
+    for instr in real:
         binary = encode_instruction(instr)
         low, high = binary[:8], binary[8:]
         memory[addr] = high
@@ -114,6 +133,16 @@ if __name__ == "__main__":
         cmd = input()
         if cmd == "EXIT" :
             break
+        if not cmd.strip():
+            continue
+        # Check each line as it is typed so a mistake can be re-entered
+        try:
+            for real in expand_pseudo(cmd):
+                encode_instruction(real)
+        except (ValueError, IndexError) as e:
+            msg = str(e) if isinstance(e, ValueError) else "missing operand"
+            print(f"Error: {msg} -- line ignored, try again")
+            continue
         program.append(cmd)
         
     assemble(program)

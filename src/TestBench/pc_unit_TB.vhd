@@ -10,13 +10,14 @@ end pc_unit_tb;
 architecture TB_ARCHITECTURE of pc_unit_tb is
 	-- Component declaration of the tested unit
 	component pc_unit
+	generic(PC_range : integer:=2**9);
 	port(
 		clk : in STD_LOGIC;
 		reset : in STD_LOGIC;
 		branch : in STD_LOGIC;
 		Ubranch : in Std_logic;
 		offset : in STD_LOGIC_VECTOR(7 downto 0);
-		PC : inout INTEGER range 0 to 511 );
+		PC : out INTEGER range 0 to 511 );
 	end component;
 
 	-- Stimulus signals - signals mapped to the input and inout ports of tested entity
@@ -45,9 +46,9 @@ begin
 	 process
 	 begin
 		 reset <= '1';
-		 wait for 2ns;
+		 wait for 2 ns;
 		 reset <= '0';
-		 wait for 2ns;
+		 wait for 2 ns;
 		 Ubranch <= '1';
 		 offset<= x"05";
 		 wait;

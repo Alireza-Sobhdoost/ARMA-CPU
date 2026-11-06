@@ -41,14 +41,14 @@ begin
 		);
 
 	-- Add your stimulus here ...
-	clk <= not clk after 4ns;
+	clk <= not clk after 4 ns;
 	process
 	begin  
 		reset <= '1';
 		IMR <= '1';
 		IMW <= '0';
 		INST <= "0000000000000000";
-		wait for 2ns;
+		wait for 2 ns;
 		reset <= '0';
 		IMR <= '1';
 		IMW <= '0';
