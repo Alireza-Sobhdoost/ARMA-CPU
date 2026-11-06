@@ -86,11 +86,11 @@ begin
 		 wait for 4 ns;
 		 check(x"1234", '0', '0', '0', "MOV");
 
-		 A<= x"0005";
-		 B<= x"0005";
-		 Opcode <= "0100"; -- CMP : equal -> Z
+		 A<= x"FFFE";
+		 B<= x"0003";
+		 Opcode <= "0100"; -- ADD-ST : Mem[ADDR] + RX, with carry
 		 wait for 4 ns;
-		 check(x"0000", '0', '1', '0', "CMP");
+		 check(x"0001", '1', '0', '0', "ADD-ST");
 
 		 A<= "1010101010101010";
 		 B<= "0101010101010101";

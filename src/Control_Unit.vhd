@@ -46,7 +46,10 @@ begin
             when "0011" => -- MOV
                 RegWrite <= '1';
                 ALUOp <= "0011";
-            when "0100" => -- CMP
+            when "0100" => -- ADD-ST [ADDR], RX : Mem[ADDR] <- Mem[ADDR] + RX
+                MemRead <= '1';
+                MemWrite <= '1';
+				Reg2Loc <= '1';
 				ALUOp <= "0100";
             when "0101" => -- XOR
                 RegWrite <= '1';

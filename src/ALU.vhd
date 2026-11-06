@@ -36,8 +36,8 @@ begin
                 Temp_Result := ('0' & A) + ("0" & B);
 			when "0011" => -- MOV (source register is in the Rs slot -> A)
 				Temp_Result := ('0' & A);
-            when "0100" => -- CMP
-				Temp_Result := ('0' & A) - ('0' & B);
+            when "0100" => -- ADD-ST : Mem[ADDR] + RX
+				Temp_Result := ('0' & A) + ('0' & B);
             when "0101" => -- XOR
                 Temp_Result := '0' & (A xor B);
             when "0110" => -- AND

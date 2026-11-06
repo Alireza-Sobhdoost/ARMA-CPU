@@ -3,7 +3,7 @@ OPCODES = {
     "SUB":  "0001",
     "ADDI": "0010",
     "MOV":  "0011",
-    "CMP":  "0100",
+    "ADD-ST": "0100",
     "XOR":  "0101",
     "AND":  "0110",
     "OR":  "0111",
@@ -54,10 +54,12 @@ def encode_instruction(line: str) -> str:
         rd, rs = parts[1], parts[2]
         return opcode + reg_to_bin(rd) + reg_to_bin(rs) + "0000"
 
-    # --- CMP Rs1, Rs2 (R-type with no destination, flags = Rs1 - Rs2) ---
-    elif instr == "CMP":
-        rs1, rs2 = parts[1], parts[2]
-        return opcode + "0000" + reg_to_bin(rs1) + reg_to_bin(rs2)
+    # --- ADD-ST [ADDR], RX: Mem[ADDR] <- Mem[ADDR] + RX (ADDR in hex, like LD/ST) ---
+    elif instr == "ADD-ST":
+        addr, rx = int(parts[1], 16), parts[2]
+        if not 0 <= addr <= 0xFF:
+            raise ValueError(f"ADD-ST address must be 0..FF, got {parts[1]}")
+        return opcode + reg_to_bin(rx) + f"{addr:08b}"
 
     # --- SHL/SHR Rd, Rs ---
     elif instr in ["SHL", "SHR"]:

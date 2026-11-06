@@ -13,7 +13,7 @@ ghdl -a -fsynopsys src/PC_Unit.vhd
 ghdl -a -fsynopsys src/Register_Bank.vhd
 ghdl -a -fsynopsys src/Control_Unit.vhd
 ghdl -a -fsynopsys src/CPU.vhd
-ghdl -a -fsynopsys src/cpu_tb.vhd
+ghdl -a -fsynopsys src/TestBench/cpu_TB.vhd
 
 # Elaborate and simulate
 ghdl -e -fsynopsys cpu_tb
